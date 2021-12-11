@@ -30,7 +30,7 @@ public class TransferFundsTest {
         int targetBalance = dashboard.getBalance(targetCardIndex);
         int sourceBalance = dashboard.getBalance(sourceCardIndex);
         TransferFundsPage transferFunds = dashboard.selectCard(targetCardIndex); // number starts from 0
-        transferFunds.transfer(sumToTransfer, sourceCardIndex);
+        dashboard = transferFunds.transfer(sumToTransfer, sourceCardIndex);
         assertEquals(targetBalance + sumToTransfer, dashboard.getBalance(targetCardIndex));
         assertEquals(sourceBalance - sumToTransfer, dashboard.getBalance(sourceCardIndex));
     }
@@ -48,8 +48,26 @@ public class TransferFundsTest {
         int targetBalance = dashboard.getBalance(targetCardIndex);
         int sourceBalance = dashboard.getBalance(sourceCardIndex);
         TransferFundsPage transferFunds = dashboard.selectCard(targetCardIndex); // number starts from 0
-        transferFunds.transfer(sumToTransfer, sourceCardIndex);
+        dashboard = transferFunds.transfer(sumToTransfer, sourceCardIndex);
         assertEquals(targetBalance + sumToTransfer, dashboard.getBalance(targetCardIndex));
         assertEquals(sourceBalance - sumToTransfer, dashboard.getBalance(sourceCardIndex));
+    }
+
+    @Test
+    public void shouldNotTransferFundsIfNotEnoughInSource() {
+        int targetCardIndex = 1;
+        int sourceCardIndex = 0;
+        LoginPage login = new LoginPage();
+        DataHelper.AuthInfo user = DataHelper.getAuthInfo();
+        VerificationPage verification = login.validLogin(user);
+        DataHelper.VerificationCode code = DataHelper.getVerificationCode();
+        DashboardPage dashboard = verification.verifyValidCode(code);
+        int targetBalance = dashboard.getBalance(targetCardIndex);
+        int sourceBalance = dashboard.getBalance(sourceCardIndex);
+        int sumToTransfer = sourceBalance + 1; // this is over card balance
+        TransferFundsPage transferFunds = dashboard.selectCard(targetCardIndex); // number starts from 0
+        dashboard = transferFunds.transfer(sumToTransfer, sourceCardIndex);
+        assertEquals(targetBalance, dashboard.getBalance(targetCardIndex));
+        assertEquals(sourceBalance, dashboard.getBalance(sourceCardIndex));
     }
 }
